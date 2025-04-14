@@ -1,0 +1,88 @@
+<div class="mapa-container">
+  <!-- Filtros -->
+  <div class="filtros-container">
+    <mat-form-field>
+      <mat-label>Estado</mat-label>
+      <mat-select [(ngModel)]="filtros.estado" (selectionChange)="onEstadoChange()">
+        <mat-option [value]="">Todos</mat-option>
+        <mat-option *ngFor="let estado of estados" [value]="estado">
+          {{estado}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Cidade</mat-label>
+      <mat-select [(ngModel)]="filtros.cidade" (selectionChange)="onCidadeChange()" [disabled]="!filtros.estado">
+        <mat-option [value]="">Todas</mat-option>
+        <mat-option *ngFor="let cidade of cidades" [value]="cidade">
+          {{cidade}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Bairro</mat-label>
+      <mat-select [(ngModel)]="filtros.bairro" [disabled]="!filtros.cidade">
+        <mat-option [value]="">Todos</mat-option>
+        <mat-option *ngFor="let bairro of bairros" [value]="bairro">
+          {{bairro}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Tipo de Imóvel</mat-label>
+      <mat-select [(ngModel)]="filtros.tipo">
+        <mat-option [value]="">Todos</mat-option>
+        <mat-option *ngFor="let tipo of tiposImovel" [value]="tipo">
+          {{tipo}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Valor Máximo</mat-label>
+      <input matInput type="number" [(ngModel)]="filtros.valorMax">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Desconto Mínimo (%)</mat-label>
+      <input matInput type="number" [(ngModel)]="filtros.descontoMin">
+    </mat-form-field>
+
+    <div class="botoes-container">
+      <button mat-raised-button color="primary" (click)="aplicarFiltros()" [disabled]="carregando">
+        <mat-icon>search</mat-icon>
+        Buscar Imóveis
+      </button>
+      
+      <button mat-button (click)="limparFiltros()" [disabled]="carregando">
+        <mat-icon>clear</mat-icon>
+        Limpar Filtros
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-overlay" *ngIf="carregando">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <!-- Mapa -->
+  <google-map
+    height="100%"
+    width="100%"
+    [center]="center"
+    [zoom]="zoom">
+    <map-marker
+      *ngFor="let imovel of imoveisFiltrados"
+      [position]="{
+        lat: +imovel.latitude,
+        lng: +imovel.longitude
+      }"
+      [options]="getMarkerOptions(imovel)"
+      (mapClick)="abrirDetalhesImovel(imovel)">
+    </map-marker>
+  </google-map>
+</div>

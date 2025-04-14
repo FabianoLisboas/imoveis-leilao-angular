@@ -1,0 +1,101 @@
+/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.mat-typography {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+}
+
+.container {
+  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.gap-8 {
+  gap: 8px;
+}
+
+.gap-16 {
+  gap: 16px;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Classes de cores do Material Design */
+.text-primary {
+  color: #3f51b5;
+}
+
+.text-accent {
+  color: #ff4081;
+}
+
+.bg-primary {
+  background-color: #3f51b5;
+  color: white;
+}
+
+.bg-accent {
+  background-color: #ff4081;
+  color: white;
+}
+
+/* Ocultar o elemento de área de toque adicionado pelo Angular Material */
+.mat-mdc-button-touch-target {
+  display: none !important;
+}
+
+/* Ocultar o botão de entrada padrão que exibe apenas "Entrar" */
+a[routerlink="/login"] .mdc-button__label:contains("Entrar") {
+  display: none !important;
+}
+
+/* Ocultar completamente o botão de login padrão */
+a[routerlink="/login"] {
+  display: none !important;
+}

@@ -1,0 +1,68 @@
+<mat-card class="imovel-card">
+  <div class="card-image-container">
+    <img 
+      mat-card-image 
+      [src]="imagemUrl" 
+      [alt]="imovel.tipo_imovel || 'Imóvel'"
+      (load)="aoCarregarImagem()"
+      (error)="aoErroImagem()"
+      [class.hidden]="imagemCarregando || imagemComErro"
+    >
+    <div class="loading-overlay" *ngIf="imagemCarregando">
+      <div class="loading-spinner"></div>
+      <span>Carregando...</span>
+    </div>
+    <div class="error-overlay" *ngIf="imagemComErro">
+      <mat-icon>image_not_supported</mat-icon>
+      <span>Imagem indisponível</span>
+    </div>
+  </div>
+  
+  <mat-card-content>
+    <div class="tipo-chip">
+      <mat-chip-set>
+        <mat-chip>{{imovel.tipo_imovel}}</mat-chip>
+      </mat-chip-set>
+    </div>
+
+    <h2 class="endereco">
+      {{getEnderecoLinha1()}}
+      <br>
+      {{getEnderecoLinha2()}}
+    </h2>
+
+    <div class="detalhes">
+      <span *ngIf="imovel.area" class="detalhe">
+        <mat-icon>square_foot</mat-icon>
+        {{imovel.area}}m²
+      </span>
+      <span *ngIf="imovel.quartos" class="detalhe">
+        <mat-icon>bed</mat-icon>
+        {{imovel.quartos}} quartos
+      </span>
+    </div>
+
+    <div class="valores">
+      <div class="valor-original" *ngIf="imovel.valor_avaliacao">
+        De: {{formatarMoeda(imovel.valor_avaliacao)}}
+      </div>
+      <div class="valor-atual">
+        Por: {{formatarMoeda(imovel.valor)}}
+      </div>
+      <div class="desconto" *ngIf="imovel.desconto">
+        {{imovel.desconto}}% de desconto
+      </div>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-button color="primary" (click)="navegarParaDetalhes()">
+      <mat-icon>info</mat-icon>
+      Detalhes
+    </button>
+    <button mat-button color="accent" (click)="toggleFavorito.emit(imovel)">
+      <mat-icon>favorite</mat-icon>
+      Favoritar
+    </button>
+  </mat-card-actions>
+</mat-card>

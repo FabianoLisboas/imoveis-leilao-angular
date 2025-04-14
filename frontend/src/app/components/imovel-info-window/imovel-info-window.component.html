@@ -1,0 +1,62 @@
+<div class="custom-info-window">
+  <!-- Cabeçalho com botão de fechar -->
+  <div class="info-header">
+    <h3 class="info-title">{{imovel.tipo_imovel}}</h3>
+    <button mat-icon-button class="close-button" (click)="onClose()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  
+  <!-- Conteúdo principal -->
+  <div class="info-content">
+    <!-- Imagem do imóvel com altura fixa -->
+    <div class="image-container">
+      <img [src]="getImageUrl()" [alt]="imovel.tipo_imovel" class="property-image">
+    </div>
+    
+    <!-- Informações do imóvel -->
+    <div class="info-details">
+      <!-- Endereço completo -->
+      <div class="address">
+        <mat-icon>location_on</mat-icon>
+        <span>{{formatarEndereco()}}</span>
+      </div>
+      
+      <!-- Características do imóvel -->
+      <div class="property-features">
+        <div class="feature">
+          <mat-icon>square_foot</mat-icon>
+          <span>{{formatarArea(imovel.area)}}</span>
+        </div>
+        
+        <div class="feature">
+          <mat-icon>hotel</mat-icon>
+          <span>{{imovel.quartos || 'N/A'}} quartos</span>
+        </div>
+      </div>
+      
+      <!-- Preço e desconto -->
+      <div class="pricing">
+        <div class="price">{{formatarValor(imovel.valor)}}</div>
+        <div class="discount" *ngIf="temDesconto()">
+          -{{formatarPorcentagem(imovel.desconto)}}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Barra de ações -->
+  <div class="action-bar">
+    <button mat-button color="primary" (click)="onVerDetalhes()">
+      <mat-icon>info</mat-icon>
+      Ver detalhes
+    </button>
+    
+    <button mat-icon-button [color]="isFavorito ? 'warn' : ''" 
+            (click)="onFavoritar()" 
+            [matTooltip]="isFavorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"
+            [disabled]="isTogglingFavorite">
+      <mat-icon>{{isFavorito ? 'favorite' : 'favorite_border'}}</mat-icon>
+    </button>
+  </div>
+</div>

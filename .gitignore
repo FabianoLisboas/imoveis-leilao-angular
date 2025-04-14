@@ -1,0 +1,96 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Virtual Environment
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Mas não ignorar o arquivo de exemplo
+!.env.example
+
+# Logs
+logs/
+logs/gemini_requests/
+*.log
+importacao.log
+validacao_geografica.log
+correcao_urls.log
+
+# Data files
+*.csv
+*.geojson
+backup_propriedades.json
+
+# Large files (> 1MB)
+*.{csv,geojson,json,log,db,shp,shx,dbf,prj,cpg,qix,pdf,zip,rar,7z,tar,gz}
+**/*.{csv,geojson,json,log,db,shp,shx,dbf,prj,cpg,qix,pdf,zip,rar,7z,tar,gz}
+
+# Ignore all files in data directory
+importador/data/*
+!importador/data/.gitkeep
+
+# Pasta de imagens de imóveis
+imagens_imoveis/
+imagens_imoveis/**
+
+# Node modules
+node_modules/
+
+# Shapefiles
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.qix
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log* 
