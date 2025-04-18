@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/analisar-matricula/', views.analisar_matricula, name='analisar_matricula'),
     path('api/proxy-imagem/', views.proxy_imagem, name='proxy_imagem'),
     path('api/imagens/<str:codigo>/', views.imagem_imovel, name='imagem_imovel'),
+    path('api/config/maps-key/', views.maps_api_key, name='maps_api_key'),
     path('favoritos/', views.favoritos_view, name='favoritos'),
     path('propriedade/<str:codigo>/', views.propriedade_view, name='propriedade'),
 ] 

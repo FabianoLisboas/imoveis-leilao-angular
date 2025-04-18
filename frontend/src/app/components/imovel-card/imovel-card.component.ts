@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, PLATFORM_ID, Inject, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,6 +8,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import { Imovel } from '../../models/imovel';
+import { FavoritosService } from '../../services/favoritos.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ChangeDetectorRef } from '@angular/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-imovel-card',
@@ -24,7 +28,7 @@ import { Imovel } from '../../models/imovel';
   templateUrl: './imovel-card.component.html',
   styleUrls: ['./imovel-card.component.scss']
 })
-export class ImovelCardComponent implements OnInit {
+export class ImovelCardComponent implements OnInit, OnDestroy {
   @Input() imovel!: Imovel;
   @Output() toggleFavorito = new EventEmitter<Imovel>();
   
@@ -33,9 +37,17 @@ export class ImovelCardComponent implements OnInit {
   imagemComErro: boolean = false;
   public isBrowser: boolean;
   
+  // Novas propriedades de estado para favoritos
+  isFavorito = false;
+  isTogglingFavorite = false;
+  private favoritosSub?: Subscription;
+  
   constructor(
     private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private favoritosService: FavoritosService,
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     console.log('ImovelCardComponent - isBrowser:', this.isBrowser);
@@ -44,8 +56,29 @@ export class ImovelCardComponent implements OnInit {
   ngOnInit(): void {
     if (this.isBrowser) {
       this.configurarImagemUrl();
+      // Verificar estado inicial do favorito
+      this.verificarEstadoFavorito();
+      // Inscrever-se para mudanças nos favoritos
+      this.favoritosSub = this.favoritosService.favoritos.subscribe((codigosFavoritos) => {
+        // Atualizar o estado isFavorito baseado na nova lista
+        this.isFavorito = codigosFavoritos.includes(this.imovel?.codigo);
+        this.cdr.detectChanges();
+      });
     } else {
       console.log('Componente iniciado em modo servidor, imagem não será carregada');
+    }
+  }
+  
+  ngOnDestroy(): void {
+    if (this.favoritosSub) {
+      this.favoritosSub.unsubscribe();
+    }
+  }
+  
+  private verificarEstadoFavorito(): void {
+    if (this.imovel?.codigo) {
+      this.isFavorito = this.favoritosService.isFavorito(this.imovel.codigo);
+      this.cdr.detectChanges();
     }
   }
   
@@ -134,13 +167,17 @@ export class ImovelCardComponent implements OnInit {
   }
 
   getEnderecoLinha1(): string {
-    // Usar o endereço como string, se disponível, ou mostrar apenas o bairro
-    return this.imovel.endereco || this.imovel.bairro || '';
+    // Mostrar endereço completo na primeira linha
+    if (this.imovel.endereco && this.imovel.endereco.trim() !== '') {
+      return this.imovel.endereco;
+    }
+    return 'Endereço não disponível';
   }
   
   getEnderecoLinha2(): string {
-    // Usar cidade e estado como campos independentes
-    return `${this.imovel.cidade || ''} - ${this.imovel.estado || ''}`;
+    // Adicionar o bairro junto com cidade e estado
+    const bairro = this.imovel.bairro ? `${this.imovel.bairro}, ` : '';
+    return `${bairro}${this.imovel.cidade || ''} - ${this.imovel.estado || ''}`;
   }
 
   navegarParaDetalhes() {
@@ -148,9 +185,41 @@ export class ImovelCardComponent implements OnInit {
     this.router.navigate(['/imovel', this.imovel.codigo]);
   }
 
-  favoritar() {
-    // Implementação futura
-    console.log('Favoritando imóvel:', this.imovel.codigo);
-    this.toggleFavorito.emit(this.imovel);
+  toggleFavoritoStatus(): void {
+    if (!this.imovel?.codigo || this.isTogglingFavorite) {
+      return;
+    }
+    
+    this.isTogglingFavorite = true;
+    this.cdr.detectChanges();
+
+    // Chamar o serviço para alternar o favorito
+    this.favoritosService.toggleFavorito(this.imovel.codigo, this.imovel).subscribe({
+      next: (resultado) => {
+        if (resultado.status === 'success') {
+          this.isFavorito = resultado.action === 'added';
+          const mensagem = this.isFavorito 
+            ? 'Imóvel adicionado aos favoritos' 
+            : 'Imóvel removido dos favoritos';
+          this.snackBar.open(mensagem, 'Fechar', {
+            duration: 3000,
+            horizontalPosition: 'center',
+          });
+        } else {
+          // Tratar caso de falha reportada pelo serviço (se houver)
+          this.snackBar.open('Erro ao gerenciar favoritos (1)', 'Fechar', { duration: 5000 });
+        }
+      },
+      error: (erro) => {
+        console.error('Erro ao alternar favorito no card:', erro);
+        this.snackBar.open('Erro ao gerenciar favoritos (2)', 'Fechar', {
+          duration: 5000,
+        });
+      },
+      complete: () => {
+        this.isTogglingFavorite = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 }

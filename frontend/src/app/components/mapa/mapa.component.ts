@@ -90,6 +90,11 @@ declare global {
           </mat-form-field>
 
         <mat-form-field>
+            <mat-label>Valor Mínimo</mat-label>
+          <input matInput type="number" [(ngModel)]="filtros.valorMin">
+          </mat-form-field>
+
+        <mat-form-field>
             <mat-label>Valor Máximo</mat-label>
           <input matInput type="number" [(ngModel)]="filtros.valorMax">
           </mat-form-field>
@@ -374,6 +379,7 @@ export class MapaComponent implements OnInit, OnDestroy {
     cidade: '',
     bairro: '',
     tipo: '',
+    valorMin: null as number | null,
     valorMax: null as number | null,
     descontoMin: null as number | null
   };
@@ -636,6 +642,7 @@ export class MapaComponent implements OnInit, OnDestroy {
                        this.filtros.cidade || 
                        this.filtros.bairro || 
                        this.filtros.tipo || 
+                       this.filtros.valorMin ||
                        this.filtros.valorMax || 
                        this.filtros.descontoMin;
     
@@ -648,7 +655,20 @@ export class MapaComponent implements OnInit, OnDestroy {
     this.limparMarcadores();
     this.marcadoresCarregados = 0;
     
-    this.imovelService.getImoveisParaMapa(this.filtros).subscribe({
+    // Construir objeto de filtros para a API - similar ao componente da lista
+    const filtrosApi: Record<string, any> = {};
+    if (this.filtros.estado) filtrosApi['estado'] = this.filtros.estado;
+    if (this.filtros.cidade) filtrosApi['cidade'] = this.filtros.cidade;
+    if (this.filtros.bairro) filtrosApi['bairro'] = this.filtros.bairro;
+    if (this.filtros.tipo) filtrosApi['tipo_imovel'] = this.filtros.tipo;
+    // Garantir que os valores numéricos são tratados corretamente
+    if (this.filtros.valorMin != null) filtrosApi['valor_min'] = this.filtros.valorMin;
+    if (this.filtros.valorMax != null) filtrosApi['valor_max'] = this.filtros.valorMax;
+    if (this.filtros.descontoMin != null) filtrosApi['desconto_min'] = this.filtros.descontoMin;
+    
+    console.log('Mapa - Aplicando filtros:', filtrosApi);
+    
+    this.imovelService.getImoveisParaMapa(filtrosApi).subscribe({
       next: (response: any) => {
         this.imoveis = response.results;
         this.imoveisFiltrados = [];
@@ -1165,6 +1185,7 @@ export class MapaComponent implements OnInit, OnDestroy {
       cidade: '',
       bairro: '',
       tipo: '',
+      valorMin: null,
       valorMax: null,
       descontoMin: null
     };

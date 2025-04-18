@@ -28,18 +28,24 @@
     <h2 class="endereco">
       {{getEnderecoLinha1()}}
       <br>
-      {{getEnderecoLinha2()}}
+      <span class="bairro-cidade">{{getEnderecoLinha2()}}</span>
     </h2>
 
-    <div class="detalhes">
-      <span *ngIf="imovel.area" class="detalhe">
-        <mat-icon>square_foot</mat-icon>
-        {{imovel.area}}m²
-      </span>
-      <span *ngIf="imovel.quartos" class="detalhe">
-        <mat-icon>bed</mat-icon>
-        {{imovel.quartos}} quartos
-      </span>
+    <mat-divider></mat-divider> 
+
+    <div class="detalhes-imovel">
+      <div class="detalhe" *ngIf="imovel.area">
+        <mat-icon matTooltip="Área total" aria-label="Área total">square_foot</mat-icon>
+        <span>{{imovel.area}} m²</span>
+      </div>
+      <div class="detalhe" *ngIf="imovel.quartos">
+        <mat-icon matTooltip="Quartos" aria-label="Quartos">bed</mat-icon>
+        <span>{{imovel.quartos}}</span>
+      </div>
+      <div class="detalhe tipo-venda" *ngIf="imovel.modalidade_venda">
+        <mat-icon matTooltip="Modalidade de Venda" aria-label="Modalidade de Venda">gavel</mat-icon>
+        <span>{{imovel.modalidade_venda}}</span>
+      </div>
     </div>
 
     <div class="valores">
@@ -60,9 +66,13 @@
       <mat-icon>info</mat-icon>
       Detalhes
     </button>
-    <button mat-button color="accent" (click)="toggleFavorito.emit(imovel)">
-      <mat-icon>favorite</mat-icon>
-      Favoritar
+    <button mat-button 
+            [color]="isFavorito ? 'warn' : 'accent'" 
+            (click)="toggleFavoritoStatus()" 
+            [disabled]="isTogglingFavorite"
+            [matTooltip]="isFavorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'">
+      <mat-icon>{{isFavorito ? 'favorite' : 'favorite_border'}}</mat-icon>
+      {{isFavorito ? 'Remover' : 'Favoritar'}}
     </button>
   </mat-card-actions>
 </mat-card>

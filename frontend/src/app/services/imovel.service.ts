@@ -17,26 +17,70 @@ export class ImovelService {
   constructor(private http: HttpClient) {}
 
   getImoveis(page: number = 1, pageSize: number = 10, filtros?: any): Observable<ApiResponse<Imovel>> {
-    const params = new HttpParams()
-      .set('page', page.toString())
-      .set('page_size', pageSize.toString());
-      
-    // Adicionar filtros aos parâmetros
-    let queryParams = params;
+    // 1. Criar objeto para armazenar parâmetros
+    const paramsToSend: { [param: string]: string | number | boolean } = {
+      page: page.toString(),
+      page_size: pageSize.toString()
+    };
+
+    // Log explícito dos filtros iniciais
+    console.log('Filtros recebidos no serviço:', JSON.stringify(filtros));
+    console.log('Valores específicos:', {
+      valor_min: filtros.valor_min,
+      valorMin: filtros.valorMin,
+      valor_max: filtros.valor_max,
+      valorMax: filtros.valorMax,
+      desconto_min: filtros.desconto_min,
+      descontoMin: filtros.descontoMin
+    });
+
+    // 2. Adicionar filtros condicionalmente ao objeto
     if (filtros) {
-      if (filtros.estado) queryParams = queryParams.set('estado', filtros.estado);
-      if (filtros.cidade) queryParams = queryParams.set('cidade', filtros.cidade);
-      if (filtros.bairro) queryParams = queryParams.set('bairro', filtros.bairro);
-      if (filtros.tipo) queryParams = queryParams.set('tipo_imovel', filtros.tipo);
-      if (filtros.valorMin) queryParams = queryParams.set('valor_min', filtros.valorMin);
-      if (filtros.valorMax) queryParams = queryParams.set('valor_max', filtros.valorMax);
-      if (filtros.descontoMin) queryParams = queryParams.set('desconto_min', filtros.descontoMin);
+      if (filtros.estado) {
+        paramsToSend['estado'] = filtros.estado;
+      }
+      if (filtros.cidade) {
+        paramsToSend['cidade'] = filtros.cidade;
+      }
+      if (filtros.bairro) {
+        paramsToSend['bairro'] = filtros.bairro;
+      }
+      
+      // Verificação mais detalhada para o tipo
+      console.log('Valor de filtros.tipo_imovel:', filtros.tipo_imovel);
+      console.log('Tipo de filtros.tipo_imovel:', typeof filtros.tipo_imovel);
+      
+      if (filtros.tipo_imovel != null && filtros.tipo_imovel !== '') {
+        paramsToSend['tipo_imovel'] = filtros.tipo_imovel;
+      }
+      
+      // Usar a verificação robusta para valores numéricos
+      if (filtros.valor_min != null) {
+        paramsToSend['valor_min'] = filtros.valor_min.toString();
+      }
+      if (filtros.valor_max != null) {
+        paramsToSend['valor_max'] = filtros.valor_max.toString();
+      }
+      if (filtros.desconto_min != null) {
+        paramsToSend['desconto_min'] = filtros.desconto_min.toString();
+      }
     }
 
-    const cacheKey = `imoveis_${queryParams.toString()}`;
+    // Log explícito dos parâmetros finais antes de criar o HttpParams
+    console.log('Parâmetros a serem enviados:', JSON.stringify(paramsToSend));
+    
+    // 3. Criar HttpParams a partir do objeto final
+    const queryParams = new HttpParams({ fromObject: paramsToSend });
+
+    // Log dos parâmetros HTTP finais para comparar com o que vemos no console
+    console.log('QueryParams resultado:', queryParams.toString());
+    console.log('Parâmetros em formato de objeto:', Object.fromEntries([...queryParams.keys()].map(key => [key, queryParams.getAll(key)])));
+
+    const cacheKey = `imoveis_${queryParams.toString()}`; // Cache key usa a string correta agora
     
     // Verificar cache
     if (this.cache[cacheKey] && (Date.now() - this.cache[cacheKey].timestamp) < this.cacheTTL) {
+      // console.log(`[ImovelService] Retornando do cache para: ${queryParams.toString()}`);
       return of(this.cache[cacheKey].data);
     }
 
@@ -47,12 +91,16 @@ export class ImovelService {
     const cancelToken = new Subject<void>();
     this.pendingRequests[cacheKey] = cancelToken;
     
+    // DEBUG: Logar os parâmetros finais antes de enviar a requisição
+    console.log(`[ImovelService] Enviando requisição com params: ${queryParams.toString()}`);
+    
     return this.http.get<ApiResponse<Imovel>>(`${this.apiUrl}/propriedades/`, { 
-      params: queryParams
+      params: queryParams // Usar os HttpParams criados
     }).pipe(
       takeUntil(cancelToken),
       retry(1),
       tap(response => {
+        // console.log(`[ImovelService] Armazenando no cache para: ${queryParams.toString()}`);
         this.cache[cacheKey] = {
           data: response,
           timestamp: Date.now()
@@ -61,6 +109,7 @@ export class ImovelService {
         delete this.pendingRequests[cacheKey];
       }),
       catchError(error => {
+        console.error(`[ImovelService] Erro na requisição para ${queryParams.toString()}:`, error);
         delete this.pendingRequests[cacheKey];
         return throwError(() => error);
       })
@@ -73,9 +122,18 @@ export class ImovelService {
     if (filtros.estado) params.estado = filtros.estado;
     if (filtros.cidade) params.cidade = filtros.cidade;
     if (filtros.bairro) params.bairro = filtros.bairro;
-    if (filtros.tipo) params.tipo_imovel = filtros.tipo;
-    if (filtros.valorMax) params.valor_max = filtros.valorMax;
-    if (filtros.descontoMin) params.desconto_min = filtros.descontoMin;
+    if (filtros.tipo_imovel != null && filtros.tipo_imovel !== '') {
+      params.tipo_imovel = filtros.tipo_imovel;
+    }
+    if (filtros.valor_min != null) {
+      params.valor_min = filtros.valor_min.toString();
+    }
+    if (filtros.valor_max != null) {
+      params.valor_max = filtros.valor_max.toString();
+    }
+    if (filtros.desconto_min != null) {
+      params.desconto_min = filtros.desconto_min.toString();
+    }
 
     const queryParams = new HttpParams({ fromObject: params });
     const cacheKey = `mapa_${queryParams.toString()}`;

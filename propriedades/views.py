@@ -110,11 +110,32 @@ def mapa_api(request):
         tipos = tipo_imovel.split(',')
         queryset = queryset.filter(tipo_imovel__in=tipos)
         
-    if valor_max := request.GET.get('valor_max'):
-        queryset = queryset.filter(valor__lte=valor_max)
+    if valor_min_str := request.GET.get('valor_min'):
+        try:
+            valor_min = float(valor_min_str)
+            print(f"DEBUG: Aplicando filtro valor_min: {valor_min}")
+            queryset = queryset.filter(valor__gte=valor_min)
+        except (ValueError, TypeError):
+            print(f"DEBUG: Valor inválido para valor_min: {valor_min_str}")
+            pass
         
-    if desconto_min := request.GET.get('desconto_min'):
-        queryset = queryset.filter(desconto__gte=desconto_min)
+    if valor_max_str := request.GET.get('valor_max'):
+        try:
+            valor_max = float(valor_max_str)
+            print(f"DEBUG: Aplicando filtro valor_max: {valor_max}")
+            queryset = queryset.filter(valor__lte=valor_max)
+        except (ValueError, TypeError):
+            print(f"DEBUG: Valor inválido para valor_max: {valor_max_str}")
+            pass
+        
+    if desconto_min_str := request.GET.get('desconto_min'): 
+        try:
+            desconto_min = float(desconto_min_str) # Converter para float
+            print(f"DEBUG: Aplicando filtro desconto_min: {desconto_min}")
+            queryset = queryset.filter(desconto__gte=desconto_min)
+        except (ValueError, TypeError):
+             print(f"DEBUG: Valor inválido para desconto_min: {desconto_min_str}")
+             pass
 
     # Contar total de resultados
     total_count = queryset.count()
@@ -206,11 +227,32 @@ def propriedades_api(request):
         tipos = tipo_imovel.split(',')
         queryset = queryset.filter(tipo_imovel__in=tipos)
         
-    if valor_max := request.GET.get('valor_max'):
-        queryset = queryset.filter(valor__lte=valor_max)
+    if valor_min_str := request.GET.get('valor_min'):
+        try:
+            valor_min = float(valor_min_str)
+            print(f"DEBUG: Aplicando filtro valor_min: {valor_min}")
+            queryset = queryset.filter(valor__gte=valor_min)
+        except (ValueError, TypeError):
+            print(f"DEBUG: Valor inválido para valor_min: {valor_min_str}")
+            pass
         
-    if desconto_min := request.GET.get('desconto_min'):
-        queryset = queryset.filter(desconto__gte=desconto_min)
+    if valor_max_str := request.GET.get('valor_max'):
+        try:
+            valor_max = float(valor_max_str)
+            print(f"DEBUG: Aplicando filtro valor_max: {valor_max}")
+            queryset = queryset.filter(valor__lte=valor_max)
+        except (ValueError, TypeError):
+            print(f"DEBUG: Valor inválido para valor_max: {valor_max_str}")
+            pass
+        
+    if desconto_min_str := request.GET.get('desconto_min'): 
+        try:
+            desconto_min = float(desconto_min_str) # Converter para float
+            print(f"DEBUG: Aplicando filtro desconto_min: {desconto_min}")
+            queryset = queryset.filter(desconto__gte=desconto_min)
+        except (ValueError, TypeError):
+             print(f"DEBUG: Valor inválido para desconto_min: {desconto_min_str}")
+             pass
         
     if quartos := request.GET.get('quartos'):
         quartos_list = quartos.split(',')
@@ -225,21 +267,53 @@ def propriedades_api(request):
 
     # Paginação
     page = int(request.GET.get('page', 1))
-    page_size = int(request.GET.get('page_size', 50))
+    page_size = int(request.GET.get('page_size', 10)) # Usar 10 como padrão, igual ao frontend
     start = (page - 1) * page_size
     end = start + page_size
 
+    # Obter o total antes de aplicar a paginação ao queryset principal
+    total_count = queryset.count()
+
+    # Aplicar paginação
+    paged_queryset = queryset[start:end]
+
     # Converter queryset para lista de dicionários
-    propriedades = list(queryset.values(
-        'codigo', 'tipo_imovel', 'cidade', 'estado',
-        'valor', 'latitude', 'longitude', 'desconto'
-    )[start:end])
+    propriedades = list(paged_queryset.values(
+        'codigo', 'tipo_imovel', 'cidade', 'estado', 'bairro', 'endereco',
+        'valor', 'latitude', 'longitude', 'desconto', 'imagem_url',
+        'valor_avaliacao', 'area', 'quartos', 'modalidade_venda' # Adicionar os novos campos
+    ))
     
+    # Garantir que valores numéricos sejam strings ou null onde apropriado
+    for prop in propriedades:
+        prop['valor'] = str(prop['valor']) if prop['valor'] is not None else None
+        prop['latitude'] = str(prop['latitude']) if prop['latitude'] is not None else None
+        prop['longitude'] = str(prop['longitude']) if prop['longitude'] is not None else None
+        prop['desconto'] = str(prop['desconto']) if prop['desconto'] is not None else '0'
+        prop['valor_avaliacao'] = str(prop['valor_avaliacao']) if prop['valor_avaliacao'] is not None else None
+        prop['area'] = str(prop['area']) if prop['area'] is not None else None # Converter area
+        # quartos e modalidade_venda não precisam de conversão extra aqui, mas são incluídos nos .values()
+        
+    # Construir URLs de paginação (lógica similar à mapa_api)
+    base_url = request.build_absolute_uri().split('?')[0]
+    query_params = request.GET.copy()
+    
+    next_page_url = None
+    if end < total_count:
+        query_params['page'] = page + 1
+        next_page_url = f"{base_url}?{query_params.urlencode()}"
+    
+    previous_page_url = None
+    if page > 1:
+        query_params['page'] = page - 1
+        previous_page_url = f"{base_url}?{query_params.urlencode()}"
+
+    # Retornar JSON na estrutura esperada pelo frontend (ApiResponse)
     return JsonResponse({
-        'propriedades': propriedades,
-        'total': queryset.count(),
-        'page': page,
-        'page_size': page_size
+        'count': total_count,
+        'next': next_page_url,
+        'previous': previous_page_url,
+        'results': propriedades
     })
 
 def cidades_api(request, estado):
@@ -735,3 +809,19 @@ def imagem_imovel(request, codigo):
         except FileNotFoundError:
             print(f"[IMAGEM] Arquivo 'propriedades/static/img/no-image.jpg' não encontrado")
             return HttpResponse('Imagem não encontrada', status=404)
+
+def maps_api_key(request):
+    """Retorna a chave da API do Google Maps de forma segura."""
+    # Tenta obter a chave do ambiente
+    api_key = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+    
+    # Se não existir no ambiente, usa a chave configurada no settings.py
+    if not api_key:
+        api_key = getattr(settings, 'GOOGLE_MAPS_API_KEY', '')
+    
+    # Se ainda não tiver uma chave, usa a chave armazenada no settings como fallback
+    if not api_key:
+        api_key = '' # Retornar string vazia se nenhuma chave for encontrada
+        print("AVISO: Nenhuma chave GOOGLE_MAPS_API_KEY encontrada no ambiente ou settings.")
+    
+    return JsonResponse({'key': api_key})
