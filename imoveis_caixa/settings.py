@@ -18,7 +18,7 @@ IS_DEVELOPMENT = ENVIRONMENT == 'development'
 IS_PRODUCTION = ENVIRONMENT == 'production'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-key-for-dev-only')
 
 # Se não existe SECRET_KEY, gerar um valor aleatório para desenvolvimento
 if not SECRET_KEY:
@@ -31,8 +31,11 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 # Configuração de hosts permitidos baseada no ambiente
 if IS_PRODUCTION:
-    ALLOWED_HOSTS = ['imoveis-caixa.onrender.com']
-    CSRF_TRUSTED_ORIGINS = ['https://imoveis-caixa.onrender.com']
+    ALLOWED_HOSTS = ['imoveis-caixa.onrender.com', 'imoveis-leilao-angular.onrender.com']
+    CSRF_TRUSTED_ORIGINS = [
+        'https://imoveis-caixa.onrender.com',
+        'https://imoveis-leilao-angular.onrender.com'
+    ]
 else:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
     CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
@@ -81,6 +84,7 @@ if IS_DEVELOPMENT:
 else:
     CORS_ALLOWED_ORIGINS = [
         'https://imoveis-caixa.onrender.com',
+        'https://imoveis-leilao-angular.onrender.com',
     ]
     CORS_ALLOW_CREDENTIALS = True
 
@@ -128,9 +132,9 @@ else:
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=DEFAULT_DATABASE_URL,
-        conn_max_age=600,
-        conn_health_checks=True,
+        # Usar DATABASE_URL do ambiente, fallback para sqlite local
+        default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
+        conn_max_age=600  # Manter conexões abertas por 600s
     )
 }
 
@@ -244,4 +248,11 @@ cloudinary.config(
     api_key = os.environ.get('CLOUDINARY_API_KEY'),
     api_secret = os.environ.get('CLOUDINARY_API_SECRET'),
     secure = True
-) 
+)
+
+# Configuração do Whitenoise para compressão/cache
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+} 
