@@ -27,7 +27,7 @@ services:
     plan: free
     env: python
     branch: master
-    buildCommand: pip install -r requirements.txt && cd /opt/render/project/src && python manage.py check
+    buildCommand: pip install -r requirements.txt && cd /opt/render/project/src && python -c "import psycopg2; print('psycopg2 version:', psycopg2.__version__)" && python manage.py check
     startCommand: python manage.py check && gunicorn imoveis_caixa.wsgi:application
     envVars:
       - key: DJANGO_SECRET_KEY
