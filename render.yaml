@@ -53,8 +53,8 @@ services:
     plan: free
     env: node
     branch: main
-    buildCommand: npm ci && npm run build -- --configuration production
-    startCommand: npx serve -s dist/imoveis-leilao-angular/browser -l $PORT
+    buildCommand: npm ci && npm run build -- --configuration render
+    startCommand: npx serve -s dist/frontend -l $PORT
     envVars:
       - key: NODE_VERSION
         value: 20.10.0
