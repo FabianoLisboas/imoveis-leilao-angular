@@ -164,10 +164,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Configuração do WhiteNoise apenas em produção
 if IS_PRODUCTION:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    # Usar STORAGES em vez de STATICFILES_STORAGE
+    pass
 else:
     # Em desenvolvimento, não precisamos do WhiteNoise
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    pass
 
 # Configurações de segurança apenas em produção
 if IS_PRODUCTION:
@@ -251,8 +252,16 @@ cloudinary.config(
 )
 
 # Configuração do Whitenoise para compressão/cache
-STORAGES = {
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-} 
+if IS_PRODUCTION:
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    # Em desenvolvimento, usar storage padrão
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    } 
