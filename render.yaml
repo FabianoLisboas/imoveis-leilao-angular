@@ -5,7 +5,7 @@ services:
     plan: free
     env: postgres
     branch: master
-    repo: https://github.com/FabianoLisboas/imoveis-leilao-angular
+    repo: https://github.com/Neobiano/imoveis-leilao-angular.git
     envVars:
       - key: POSTGRES_USER
         fromDatabase:
