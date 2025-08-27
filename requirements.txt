@@ -3,4 +3,5 @@ Django==4.2.7
 gunicorn==21.2.0
 psycopg2-binary==2.9.7
 python-dotenv==1.0.0
-dj-database-url==2.1.0 
+dj-database-url==2.1.0
+cloudinary==1.40.0 
