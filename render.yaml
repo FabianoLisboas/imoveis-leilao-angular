@@ -53,7 +53,7 @@ services:
     plan: free
     env: node
     branch: main
-    buildCommand: npm ci && npm run build -- --configuration render
+    buildCommand: npm ci && npm run build:render
     startCommand: npx serve -s dist/frontend -l $PORT
     envVars:
       - key: NODE_VERSION
