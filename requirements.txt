@@ -6,4 +6,5 @@ python-dotenv==1.0.0
 dj-database-url==2.1.0
 cloudinary==1.40.0
 whitenoise==6.5.0
-djangorestframework==3.14.0 
+djangorestframework==3.14.0
+django-allauth==0.60.1 
