@@ -54,7 +54,7 @@ services:
     env: node
     branch: main
     buildCommand: npm ci && npm run build:render
-    startCommand: npx serve -s dist/frontend -l $PORT
+    startCommand: npx serve -s dist/frontend/browser -l $PORT
     envVars:
       - key: NODE_VERSION
         value: 20.10.0
