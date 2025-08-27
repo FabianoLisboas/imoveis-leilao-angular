@@ -82,10 +82,10 @@ if IS_DEVELOPMENT:
     CSRF_TRUSTED_ORIGINS.append('http://localhost:4200')
     ALLOWED_HOSTS.append('localhost:4200')
 else:
-            CORS_ALLOWED_ORIGINS = [
-            'https://imoveis-backend-2tgj.onrender.com',
-            'https://imoveis-leilao-angular.onrender.com',
-        ]
+    CORS_ALLOWED_ORIGINS = [
+        'https://imoveis-backend-2tgj.onrender.com',
+        'https://imoveis-leilao-angular.onrender.com',
+    ]
     CORS_ALLOW_CREDENTIALS = True
 
 # Configurações de sessão
