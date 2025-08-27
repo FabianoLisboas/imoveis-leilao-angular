@@ -31,9 +31,9 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
 # Configuração de hosts permitidos baseada no ambiente
 if IS_PRODUCTION:
-    ALLOWED_HOSTS = ['imoveis-caixa.onrender.com', 'imoveis-leilao-angular.onrender.com']
+    ALLOWED_HOSTS = ['imoveis-backend-2tgj.onrender.com', 'imoveis-leilao-angular.onrender.com']
     CSRF_TRUSTED_ORIGINS = [
-        'https://imoveis-caixa.onrender.com',
+        'https://imoveis-backend-2tgj.onrender.com',
         'https://imoveis-leilao-angular.onrender.com'
     ]
 else:
@@ -82,10 +82,10 @@ if IS_DEVELOPMENT:
     CSRF_TRUSTED_ORIGINS.append('http://localhost:4200')
     ALLOWED_HOSTS.append('localhost:4200')
 else:
-    CORS_ALLOWED_ORIGINS = [
-        'https://imoveis-caixa.onrender.com',
-        'https://imoveis-leilao-angular.onrender.com',
-    ]
+            CORS_ALLOWED_ORIGINS = [
+            'https://imoveis-backend-2tgj.onrender.com',
+            'https://imoveis-leilao-angular.onrender.com',
+        ]
     CORS_ALLOW_CREDENTIALS = True
 
 # Configurações de sessão

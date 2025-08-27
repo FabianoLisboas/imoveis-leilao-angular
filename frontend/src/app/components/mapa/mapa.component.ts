@@ -484,9 +484,9 @@ export class MapaComponent implements OnInit, OnDestroy {
         this.carregando = false;
         this.snackBar.open('Erro ao carregar imóveis. Tente novamente mais tarde.', 'Fechar', {
           duration: 5000,
-          panelClass: ['error-snackbar']
-        });
-      }
+            panelClass: ['error-snackbar']
+          });
+        }
     });
   }
 
