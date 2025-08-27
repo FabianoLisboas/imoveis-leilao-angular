@@ -27,7 +27,7 @@ services:
     plan: free
     env: python
     branch: master
-    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate propriedades 0009 && python manage.py migrate propriedades 0010 --fake && python manage.py migrate
+    buildCommand: pip install -r requirements.txt && python manage.py check
     startCommand: gunicorn imoveis_caixa.wsgi:application
     envVars:
       - key: DJANGO_SECRET_KEY
