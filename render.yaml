@@ -4,8 +4,8 @@ services:
     name: imoveis-db
     plan: free
     env: postgres
-    branch: main
-    repo: https://github.com/seu-usuario/seu-repositorio
+    branch: master
+    repo: https://github.com/FabianoLisboas/imoveis-leilao-angular
     envVars:
       - key: POSTGRES_USER
         fromDatabase:
@@ -26,7 +26,7 @@ services:
     name: imoveis-api
     plan: free
     env: python
-    branch: main
+    branch: master
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate propriedades 0009 && python manage.py migrate propriedades 0010 --fake && python manage.py migrate
     startCommand: gunicorn imoveis_caixa.wsgi:application
     envVars:
@@ -52,7 +52,7 @@ services:
     name: imoveis-app
     plan: free
     env: node
-    branch: main
+    branch: master
     buildCommand: npm ci && npm run build:render
     startCommand: npx serve -s dist/frontend/browser -l $PORT
     envVars:
