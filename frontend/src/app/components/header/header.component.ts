@@ -31,7 +31,7 @@ declare global {
   ],
   template: `
     <mat-toolbar color="primary">
-      <a routerLink="/" class="site-title">Imóveis Caixa</a>
+      <a routerLink="/" class="site-title">Imóveis Leilão</a>
       
       <div class="spacer"></div>
       
